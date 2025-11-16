@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Odoo — Hero Clone</title>
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    :root{
+      --neon: #dfea13;
+      --muted: #bdbdbd;
+      --brand-dark: #0b0b0b;
+    }
+
+    html,body { height:100%; }
+    body {
+      margin:0;
+      font-family: Inter, system-ui;
+      color: #fff;
+      background-color: #050505;
+      background-image: url('hero-screenshot.png');
+      background-position: center;
+      background-size: cover;
+      background-repeat: no-repeat;
+      overflow-x: hidden;
+    }
+
+    .bg-overlay::before{
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(60% 50% at 70% 50%, rgba(174,180,40,0.09), rgba(0,0,0,0.7) 35%), 
+      linear-gradient(180deg, rgba(0,0,0,0.25), rgba(0,0,0,0.55));
+      pointer-events: none;
+      mix-blend-mode: overlay;
+      z-index: 1;
+    }
+
+    .site-max { max-width: 1180px; margin: 0 auto; padding-left: 48px; padding-right: 48px; }
+
+    .logo { font-weight:800; font-size:28px; display:flex; align-items:center; gap:8px; }
+    .logo .sub { font-size:14px; opacity:0.95; transform: translateY(1px); }
+
+    header { position: absolute; top: 18px; left:0; right:0; z-index:50; }
+    nav a { color:#cfcfcf; text-decoration:none; padding-bottom:6px; position:relative; }
+
+    nav a.active::after{
+      content:"";
+      position:absolute;
+      left:50%;
+      transform:translateX(-50%);
+      bottom:-10px;
+      width:46px; height:4px;
+      background: linear-gradient(90deg, transparent, var(--neon) 30%, var(--neon) 70%, transparent);
+      border-radius:3px;
+    }
+
+    /* HERO */
+    .hero { padding-top: 140px; padding-bottom: 110px; position:relative; z-index:20; }
+    .hero h1{
+      font-weight:900;
+      line-height:0.92;
+      font-size:100px;
+      margin:0;
+      max-width:980px;
+    }
+
+    @media(max-width:1280px){ .hero h1{ font-size:96px; } }
+    @media(max-width:900px){ .hero h1{ font-size:56px; } }
+
+    /* Wavy animation */
+    .wavy{
+      width:540px;
+      margin-top:18px;
+      stroke-dasharray: 2000;
+      stroke-dashoffset: 2000;
+      animation: wave 4s linear infinite;
+    }
+
+    @keyframes wave {
+      0% { stroke-dashoffset: 2000; }
+      100% { stroke-dashoffset: 0; }
+    }
+
+    /* Glow */
+    .glow{
+      position:absolute;
+      width:320px; height:320px;
+      right:80px; top:280px;
+      border-radius:50%;
+      filter:blur(34px) saturate(140%);
+      background:radial-gradient(circle at 30% 30%, rgba(223,234,19,0.28), rgba(223,234,19,0.08) 30%, transparent 60%);
+      mix-blend-mode:screen;
+      pointer-events:none;
+      z-index:10;
+    }
+
+    /* Mobile Menu */
+    .mobile-menu{
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,0.8);
+      backdrop-filter:blur(18px);
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:center;
+      gap:32px;
+      font-size:26px;
+      opacity:0;
+      pointer-events:none;
+      transition:0.4s ease;
+      z-index:40;
+    }
+
+    .mobile-menu.open{
+      opacity:1;
+      pointer-events:auto;
+    }
+
+    /* Stars background */
+    .stars {
+      position: absolute;
+      inset: 0;
+      z-index:0;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .star {
+      position: absolute;
+      background: white;
+      border-radius: 50%;
+      opacity: 0.8;
+      animation: starMove linear infinite;
+    }
+
+    @keyframes starMove {
+      0% { transform: translateY(0) translateX(0); opacity: 0.8; }
+      100% { transform: translateY(100vh) translateX(50px); opacity: 0; }
+    }
+
+  </style>
+</head>
+<body class="relative min-h-screen text-white">
+
+<div class="bg-overlay absolute inset-0"></div>
+
+<!-- STARS -->
+<div class="stars" id="stars"></div>
+
+<!-- HEADER -->
+<header>
+  <div class="site-max flex items-center justify-between">
+
+    <!-- LOGO -->
+    <div class="logo text-white">
+      <div style="font-weight:900; font-size:31px;">DOORIER</div>
+    </div>
+
+    <!-- DESKTOP NAV -->
+    <nav class="hidden md:block">
+      <ul class="flex gap-10 text-[16px] items-center">
+        <li><a class="active" href="#">home</a></li>
+        <li><a href="#">services ▾</a></li>
+        <li><a href="#">company</a></li>
+        <li><a href="#">contact</a></li>
+      </ul>
+    </nav>
+
+    <!-- MOBILE HAMBURGER -->
+    <button id="menuBtn" class="md:hidden w-10 h-10 flex flex-col justify-center items-center gap-1">
+      <span class="bar w-7 h-0.5 bg-white transition-all duration-300"></span>
+      <span class="bar w-7 h-0.5 bg-white transition-all duration-300"></span>
+      <span class="bar w-7 h-0.5 bg-white transition-all duration-300"></span>
+    </button>
+
+  </div>
+</header>
+
+<!-- MOBILE MENU PANEL -->
+<div id="mobileMenu" class="mobile-menu">
+  <a href="#">home</a>
+  <a href="#">about us</a>
+  <a href="#">projects</a>
+  <a href="#">services</a>
+  <a href="#">calculator</a>
+  <a href="#">contact</a>
+</div>
+
+<!-- GLOW -->
+<div class="glow"></div>
+
+<!-- HERO -->
+<main class="hero site-max relative">
+  <h1>
+    International Shipping for 
+    <br>
+     <span id="platform" class="transition-all"></span>
+  </h1>
+
+  <svg class="wavy" viewBox="0 0 800 60">
+    <path d="M0 28 C40 10, 80 50, 120 28 S200 10, 240 28 S320 50, 360 28 S440 10, 480 28 S560 50, 600 28 S680 10, 720 28 S800 50, 840 28"
+      fill="none" stroke="rgba(223,234,19,1)" stroke-width="6" stroke-linecap="round" />
+  </svg>
+
+  <p class="mt-10 text-[#bdbdbd] text-lg max-w-xl">
+    Affordable, reliable, and built for eCommerce businesses
+  </p>
+  <p class="text-[#bdbdbd] mt-2 text-sm max-w-xl font-bold">
+    25,000+ Exporters | 1 Crore+ Orders Shipped | 220+ Countries
+  </p>
+</main>
+
+<!-- JS -->
+<script>
+  const menuBtn = document.getElementById("menuBtn");
+  const mobileMenu = document.getElementById("mobileMenu");
+  const bars = menuBtn.querySelectorAll(".bar");
+
+  let open = false;
+
+  menuBtn.addEventListener("click", () => {
+    open = !open;
+
+    if(open){
+      bars[0].style.transform = "translateY(6px) rotate(45deg)";
+      bars[1].style.opacity = "0";
+      bars[2].style.transform = "translateY(-6px) rotate(-45deg)";
+      mobileMenu.classList.add("open");
+    } else {
+      bars[0].style.transform = "";
+      bars[1].style.opacity = "1";
+      bars[2].style.transform = "";
+      mobileMenu.classList.remove("open");
+    }
+  });
+
+  const platforms = ["Amazon", "Walmart", "Shopify", "Etsy", "eBay"];
+  const platformSpan = document.getElementById("platform");
+  let index = 0;
+
+  function showPlatform() {
+    platformSpan.textContent = platforms[index];
+    index = (index + 1) % platforms.length; // loop back to start
+  }
+
+  showPlatform(); 
+  setInterval(showPlatform, 2000);
+
+  // Generate 120 stars dynamically
+  const starsContainer = document.getElementById('stars');
+  const starCount = 200;
+
+  for (let i = 0; i < starCount; i++) {
+    const star = document.createElement('div');
+    star.classList.add('star');
+
+    const top = Math.random() * 100;
+    const left = Math.random() * 100;
+    const size = Math.random() * 2 + 1;
+    const duration = Math.random() * 15 + 10;
+
+    star.style.top = `${top}%`;
+    star.style.left = `${left}%`;
+    star.style.width = `${size}px`;
+    star.style.height = `${size}px`;
+    star.style.animationDuration = `${duration}s`;
+
+    starsContainer.appendChild(star);
+  }
+</script>
+
+</body>
+</html>
